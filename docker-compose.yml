@@ -2,8 +2,8 @@ version: '2'
 services:
   ubuntu_guitest:
     build: .
-    image: "yamada28go/ubuntu_guitest"
-    container_name: "ubuntu_guitest"
+    image: "yamada28go/docker-x-japanese-vscode-base"
+    container_name: "docker-x-japanese-vscode-base"
     privileged: true
     ports:
      - "23001:22"
