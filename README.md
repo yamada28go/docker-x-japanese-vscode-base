@@ -1,0 +1,1 @@
+# docker-x-japanese-vscode-base
