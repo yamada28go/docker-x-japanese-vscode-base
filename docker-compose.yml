@@ -1,0 +1,10 @@
+version: '2'
+services:
+  ubuntu_guitest:
+    build: .
+    image: "yamada28go/ubuntu_guitest"
+    container_name: "ubuntu_guitest"
+    privileged: true
+    ports:
+     - "23001:22"
+     
