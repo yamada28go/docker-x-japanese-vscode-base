@@ -14,11 +14,12 @@ RUN apt-get update && apt-get install -y \
 	less
 
 #Install and set SSH
-RUN apt-get update && apt-get install -y openssh-server
-RUN mkdir /var/run/sshd
-RUN echo 'root:hoge' | chpasswd
-RUN sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
-RUN echo "X11UseLocalhost no" >> /etc/ssh/sshd_config
+RUN apt-get update && apt-get install -y openssh-server && \
+	mkdir /var/run/sshd &&\
+	echo 'root:hoge' | chpasswd &&\
+	sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config &&\
+	echo "X11UseLocalhost no" >> /etc/ssh/sshd_config &&\
+	echo "Ciphers  3des-cbc,aes128-cbc,aes192-cbc,aes256-cbc,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com,arcfour,arcfour128,arcfour256,blowfish-cbc,cast128-cbc,chacha20-poly1305@openssh.com" >> /etc/ssh/sshd_config 
 
 # SSH login fix. Otherwise user is kicked off after login
 RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
@@ -40,8 +41,8 @@ RUN apt-get install -y \
 	x11-xserver-utils
 
 # Setup Japanese environment.
-RUN cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime && echo 'Asia/Tokyo' > /etc/timezone && date
-RUN echo 'LC_ALL=ja_JP.UTF-8' > /etc/default/locale && echo 'LANG=ja_JP.UTF-8' >> /etc/default/locale &&  locale-gen ja_JP.UTF-8
+RUN cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime && echo 'Asia/Tokyo' > /etc/timezone && date &&\
+	echo 'LC_ALL=ja_JP.UTF-8' > /etc/default/locale && echo 'LANG=ja_JP.UTF-8' >> /etc/default/locale &&  locale-gen ja_JP.UTF-8
 ENV LC_CTYPE ja_JP.UTF-8
 
 #-----
@@ -55,8 +56,8 @@ RUN apt-get install -y \
 	--no-install-recommends
 
 # Add the vscode debian repo
-RUN curl -sSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | apt-key add -
-RUN echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list
+RUN curl -sSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | apt-key add - && \
+	echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list
 
 RUN apt-get update && apt-get -y install \
 	code \
@@ -81,13 +82,13 @@ RUN apt-get update && apt-get -y install \
 	libxss1 \
 	libxtst6 \
 	--no-install-recommends \
-	&& rm -rf /var/lib/apt/lists/*
-
-RUN apt-get clean
+	&& rm -rf /var/lib/apt/lists/* &&\
+	apt-get clean
 
 #Copy user config files
 COPY .bash_profile /home/dev/.bash_profile
-RUN chown dev:developer $HOME/.bash_profile
+RUN chown dev:developer /home/dev/.bash_profile &&\
+	chmod -x /home/dev/.bash_profile
 
 EXPOSE 22
 
