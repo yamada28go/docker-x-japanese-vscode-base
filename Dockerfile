@@ -87,6 +87,7 @@ RUN apt-get clean
 
 #Copy user config files
 COPY .bash_profile /home/dev/.bash_profile
+RUN chown dev:developer $HOME/.bash_profile
 
 EXPOSE 22
 
