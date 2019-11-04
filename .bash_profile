@@ -1,10 +1,11 @@
 #Setup Imput method
-export GTK_IM_MODULE=ibus
-export XMODIFIERS=@im=ibus
-export QT_IM_MODULE=ibus
-export NO_AT_BRIDGE=1
-xset -r 49
-ibus-daemon -dxr
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx
+export XMODIFIERS=@im=fcitx
+export DefaultIMModule=fcitx
+
+#日本語入力メソッドを起動する
+fcitx-autostart
 
 #複数のターミナル間で履歴の共有
 function share_history {  # 以下の内容を関数として定義
@@ -15,3 +16,6 @@ function share_history {  # 以下の内容を関数として定義
 PROMPT_COMMAND='share_history'  # 上記関数をプロンプト毎に自動実施
 shopt -u histappend   # .bash_history追記モードは不要なのでOFFに
 export HISTSIZE=9999  # 履歴のMAX保存数を指定
+
+
+

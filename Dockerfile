@@ -1,4 +1,12 @@
-FROM ubuntu:16.04
+# VsCode　日本語環境設定済みベース
+# 
+# 以下サイトを参考とした
+# 
+# WSL(Ubuntu 18.04)上でVS Codeを動かす
+# https://qiita.com/Daisuke-Otaka/items/8f031f5110008233b7f9
+
+
+FROM ubuntu:18.04
 MAINTAINER yamada28go
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -18,8 +26,7 @@ RUN apt-get update && apt-get install -y openssh-server && \
 	mkdir /var/run/sshd &&\
 	echo 'root:hoge' | chpasswd &&\
 	sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config &&\
-	echo "X11UseLocalhost no" >> /etc/ssh/sshd_config &&\
-	echo "Ciphers  3des-cbc,aes128-cbc,aes192-cbc,aes256-cbc,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com,arcfour,arcfour128,arcfour256,blowfish-cbc,cast128-cbc,chacha20-poly1305@openssh.com" >> /etc/ssh/sshd_config 
+	echo "X11UseLocalhost no" >> /etc/ssh/sshd_config 
 
 # SSH login fix. Otherwise user is kicked off after login
 RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
@@ -34,7 +41,6 @@ RUN groupadd -g 1000 developer && \
 
 # base
 RUN apt-get install -y \
-	ibus-mozc\
 	dbus-x11\
 	fonts-vlgothic\
 	x11-apps\
@@ -46,8 +52,7 @@ RUN cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime && echo 'Asia/Tokyo' > /etc
 ENV LC_CTYPE ja_JP.UTF-8
 
 #-----
-#VsCode Setup
-
+#日本語環境セットアップに必要な基礎的な条件をセットアップするs
 RUN apt-get install -y \
 	apt-transport-https \
 	ca-certificates curl\
@@ -55,12 +60,18 @@ RUN apt-get install -y \
 	git\
 	--no-install-recommends
 
-# Add the vscode debian repo
-RUN curl -sSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | apt-key add - && \
-	echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list
+RUN apt-get install -y \
+	language-pack-ja \
+	dbus-x11\
+	fcitx-mozc\
+	fonts-noto-cjk\
+	fonts-noto-hinted	
 
+RUN update-locale LANG=ja_JP.UTF-8
+RUN sudo sh -c "dbus-uuidgen > /var/lib/dbus/machine-id"
+
+# VSCodeで必要なものをインストール
 RUN apt-get update && apt-get -y install \
-	code \
 	libasound2 \
 	libatk1.0-0 \
 	libcairo2 \
@@ -81,14 +92,21 @@ RUN apt-get update && apt-get -y install \
 	libxrender1 \
 	libxss1 \
 	libxtst6 \
+	libnotify4\
+	libnss3\
 	--no-install-recommends \
 	&& rm -rf /var/lib/apt/lists/* &&\
 	apt-get clean
+	
 
 #Copy user config files
 COPY .bash_profile /home/dev/.bash_profile
 RUN chown dev:developer /home/dev/.bash_profile &&\
 	chmod -x /home/dev/.bash_profile
+
+# VS Codeをインストール
+RUN wget -O code.deb https://go.microsoft.com/fwlink/?LinkID=760868
+RUN dpkg -i code.deb
 
 EXPOSE 22
 
