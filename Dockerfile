@@ -26,7 +26,13 @@ RUN apt-get update && apt-get install -y openssh-server && \
 	mkdir /var/run/sshd &&\
 	echo 'root:hoge' | chpasswd &&\
 	sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config &&\
-	echo "X11UseLocalhost no" >> /etc/ssh/sshd_config 
+	echo "X11UseLocalhost no" >> /etc/ssh/sshd_config &&\
+# ローカル通信が前提となるためSSHの暗号形式を調整して、通信速度を最適化する。
+# HW暗号化が使用できる場合、aes128-gcm@openssh.comのほうが早い可能性があるが、
+# 対応していない環境まで考慮して使用しないものとする。
+# 参考
+# https://possiblelossofprecision.net/?p=2255
+	echo "Ciphers  aes128-ctr,aes128-gcm@openssh.com" >> /etc/ssh/sshd_config
 
 # SSH login fix. Otherwise user is kicked off after login
 RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
@@ -105,8 +111,14 @@ RUN chown dev:developer /home/dev/.bash_profile &&\
 	chmod -x /home/dev/.bash_profile
 
 # VS Codeをインストール
-RUN wget -O code.deb https://go.microsoft.com/fwlink/?LinkID=760868
-RUN dpkg -i code.deb
+# Ms公式でないと日本語入力が出来ないので注意が必要
+RUN wget -O code.deb https://go.microsoft.com/fwlink/?LinkID=760868 &&\
+	dpkg -i code.deb &&\
+	rm code.deb
+
+# APTコマンドをクリーンする
+RUN rm -rf /var/lib/apt/lists/* &&\
+	apt-get clean	
 
 EXPOSE 22
 
