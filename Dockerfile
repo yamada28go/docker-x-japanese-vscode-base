@@ -46,7 +46,7 @@ RUN groupadd -g 1000 developer && \
     echo 'dev:dev' | chpasswd
 
 # base
-RUN apt-get install -y \
+RUN apt-get update &&  apt-get install -y \
     dbus-x11\
     fonts-vlgothic\
     x11-apps\
@@ -59,14 +59,14 @@ ENV LC_CTYPE ja_JP.UTF-8
 
 #-----
 #日本語環境セットアップに必要な基礎的な条件をセットアップするs
-RUN apt-get install -y \
+RUN apt-get update && apt-get install -y \
     apt-transport-https \
     ca-certificates curl\
     gnupg\
     git\
     --no-install-recommends
 
-RUN apt-get install -y \
+RUN apt-get update && apt-get install -y \
     language-pack-ja \
     dbus-x11\
     fcitx-mozc\
@@ -100,7 +100,7 @@ RUN apt-get update && apt-get -y install \
     libxtst6 \
     libnotify4\
     libnss3\
-    --no-install-recommend
+    --no-install-recommends
 
 #Copy user config files
 COPY .bash_profile /home/dev/.bash_profile
