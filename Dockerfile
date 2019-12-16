@@ -27,12 +27,13 @@ RUN apt-get update && apt-get install -y openssh-server && \
     echo 'root:hoge' | chpasswd &&\
     sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config &&\
     echo "X11UseLocalhost no" >> /etc/ssh/sshd_config &&\
+    /usr/bin/ssh-keygen -A &&\
 # ローカル通信が前提となるためSSHの暗号形式を調整して、通信速度を最適化する。
 # HW暗号化が使用できる場合、aes128-gcm@openssh.comのほうが早い可能性があるが、
 # 対応していない環境まで考慮して使用しないものとする。
 # 参考
 # https://possiblelossofprecision.net/?p=2255
-    echo "Ciphers  aes128-ctr,aes128-gcm@openssh.com" >> /etc/ssh/sshd_config
+ echo "Ciphers  aes128-ctr,aes128-gcm@openssh.com" >> /etc/ssh/sshd_config
 
 # SSH login fix. Otherwise user is kicked off after login
 RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
